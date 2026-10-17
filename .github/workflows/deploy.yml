@@ -1,0 +1,39 @@
+
+name: Mirror and Deploy from External Main Repo
+
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout HEATT-Bio Website
+        uses: actions/checkout@v4
+        with:
+          repository: Heatthunder/HEATT-Bio
+          ref: main
+          token: ${{ secrets.REPO_PAT_KEY }}
+          path: source
+          clean: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: source/Website
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
